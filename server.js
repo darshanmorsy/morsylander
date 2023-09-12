@@ -34,7 +34,7 @@ db.on('error', (error) => {
 
 // Create a Mongoose model for your data
 const userDataSchema = new mongoose.Schema({
-    id:Number,
+    uniqueid:String,
     name: String,
   number: String,
   email: String,
@@ -57,18 +57,19 @@ const transporter = nodemailer.createTransport({
     }
   });
   
-  cron.schedule('1 23 * * *', async () => {
+  cron.schedule('11 23 * * *', async () => {
 
     const selectedDate = new Date(); // Get today's date
 
     try {
-        // Fetch today's data from your Mongoose model and convert to plain JavaScript objects
+      
         const filteredData = await UserData.find({
             createdAt: {
                 $gte: selectedDate.setHours(0, 0, 0, 0),
                 $lt: selectedDate.setHours(23, 59, 59, 999)
             }
-        }).select('name number email createdAt').lean();
+        }).select('name number email createdAt uniqueid').lean();
+        console.log(filteredData)
 
         if (filteredData.length === 0) {
             console.log('No data found for today.')
@@ -77,7 +78,7 @@ const transporter = nodemailer.createTransport({
 
         // Modify the data to include a separate "createdAt" and "createdTime" field in 12-hour format with AM/PM
         const dataWithTime = filteredData.map(item => ({
-            id: item.id,
+            ID: item.uniqueid,
             Date: format(item.createdAt, 'dd-MM-yyyy'),
             Time: format(item.createdAt, 'hh:mm:ss a'),
             Name: item.name,
@@ -125,8 +126,9 @@ const transporter = nodemailer.createTransport({
 app.post('/',async(req,res)=>{
     // console.log(req.body)
     var d=await UserData.find()
-    req.body.id=d.length+1
+    req.body.uniqueid=d.length+1
     // console.log(d,"h",req.body.id)
+    console.log(d,"h",req.body)
     var data =await UserData.create(req.body); 
     if(data){
         res.status(200).json({status:200})
