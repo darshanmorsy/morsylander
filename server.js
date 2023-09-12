@@ -10,7 +10,19 @@ const bodyParser = require('body-parser');
 const XLSX = require('xlsx');
 const { parseISO, format } = require('date-fns');
 const cron = require('node-cron');
-app.use(cors())
+const allowedOrigins = ['https://morsypropertydealer.com'];
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+};
+
+app.use(cors(corsOptions));
+// app.use(cors())
 app.use(morgan('dev'))
 app.use(express.urlencoded({ extended: true }))
 // Replace <YourMongoDBURI> with your MongoDB connection URI
@@ -68,7 +80,7 @@ const transporter = nodemailer.createTransport({
                 $gte: selectedDate.setHours(0, 0, 0, 0),
                 $lt: selectedDate.setHours(23, 59, 59, 999)
             }
-        }).select('name number email createdAt uniqueid').lean();
+        }).select('name number email createdAt uniqueid').lean()
         console.log(filteredData)
 
         if (filteredData.length === 0) {
