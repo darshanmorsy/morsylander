@@ -144,8 +144,8 @@ app.post('/',async(req,res)=>{
     var data =await UserData.create(req.body); 
     if(data){
         // res.status(200).json({status:200})
-        res.redirect('back');
-        
+        res.redirect('https://morsypropertydealer.com/');
+
     }
 })
 
