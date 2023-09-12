@@ -143,7 +143,9 @@ app.post('/',async(req,res)=>{
     console.log(d,"h",req.body)
     var data =await UserData.create(req.body); 
     if(data){
-        res.status(200).json({status:200})
+        // res.status(200).json({status:200})
+        res.redirect('back');
+        
     }
 })
 
