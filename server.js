@@ -10,19 +10,10 @@ const bodyParser = require('body-parser');
 const XLSX = require('xlsx');
 const { parseISO, format } = require('date-fns');
 const cron = require('node-cron');
-const allowedOrigins = ['https://morsypropertydealer.com'];
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-};
 
-app.use(cors(corsOptions));
-// app.use(cors())
+
+// app.use(cors(corsOptions));
+app.use(cors())
 app.use(morgan('dev'))
 app.use(express.urlencoded({ extended: true }))
 // Replace <YourMongoDBURI> with your MongoDB connection URI
