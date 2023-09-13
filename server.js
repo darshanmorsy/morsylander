@@ -51,6 +51,9 @@ const userDataSchema = new mongoose.Schema({
 const UserData = mongoose.model('UserData', userDataSchema);
 
 
+app.get('/',(req,res)=>{
+  res.send("done")
+})
 
 const transporter = nodemailer.createTransport({
     service: 'gmail', // e.g., 'Gmail' or use your SMTP configuration
