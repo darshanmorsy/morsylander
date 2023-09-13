@@ -13,7 +13,9 @@ const cron = require('node-cron');
 
 
 // app.use(cors(corsOptions));
-app.use(cors())
+app.use(cors({
+    origin: '*'
+}));
 app.use(morgan('dev'))
 app.use(express.urlencoded({ extended: true }))
 // Replace <YourMongoDBURI> with your MongoDB connection URI
