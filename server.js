@@ -14,7 +14,7 @@ const cron = require('node-cron');
 
 // app.use(cors(corsOptions));
 app.use(cors({
-    origin: 'https://talented-spacesuit-jay.cyclic.app'
+    origin: 'https://morsypropertydealer.com/'
 }));
 app.use(morgan('dev'))
 app.use(express.urlencoded({ extended: true }))
