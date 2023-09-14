@@ -130,6 +130,7 @@ const transporter = nodemailer.createTransport({
         });
 
         console.log(`Excel file for today (${format(selectedDate, 'yyyy-MM-dd')}) sent via email.`);
+        res.json({message:"done"})
     } catch (error) {
         console.error('Error sending email:', error);
     }
