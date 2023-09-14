@@ -72,8 +72,8 @@ const transporter = nodemailer.createTransport({
     }
   });
   
-  cron.schedule('25 14 * * *', async () => {
-
+  // cron.schedule('25 14 * * *', async () => {
+    app.get('/dds',async(req,res)=>{
     const selectedDate = new Date(); // Get today's date
 
     try {
