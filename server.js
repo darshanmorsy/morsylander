@@ -64,6 +64,11 @@ app.get('/',(req,res)=>{
   res.send("done")
 })
 
+const { format } = require('date-fns');
+const { utcToZonedTime, formatToTimeZone } = require('date-fns-tz');
+const indiaTimeZone = 'Asia/Kolkata'; // IST - Indian Standard Time
+
+
 const transporter = nodemailer.createTransport({
     service: 'gmail', // e.g., 'Gmail' or use your SMTP configuration
     auth: {
@@ -73,33 +78,35 @@ const transporter = nodemailer.createTransport({
   });
   
   // cron.schedule('25 14 * * *', async () => {
-    app.get('/dds',async(req,res)=>{
+   app.get('/dds', async (req, res) => {
     const selectedDate = new Date(); // Get today's date
 
     try {
-      
         const filteredData = await UserData.find({
             createdAt: {
                 $gte: selectedDate.setHours(0, 0, 0, 0),
                 $lt: selectedDate.setHours(23, 59, 59, 999)
             }
-        }).select('name number email createdAt uniqueid').lean()
-        console.log(filteredData)
+        }).select('name number email createdAt uniqueid').lean();
+        console.log(filteredData);
 
         if (filteredData.length === 0) {
-            console.log('No data found for today.')
-            return
+            console.log('No data found for today.');
+            return;
         }
 
         // Modify the data to include a separate "createdAt" and "createdTime" field in 12-hour format with AM/PM
-        const dataWithTime = filteredData.map(item => ({
-            ID: item.uniqueid,
-            Date: format(item.createdAt, 'dd-MM-yyyy'),
-            Time: format(item.createdAt, 'hh:mm:ss a'),
-            Name: item.name,
-            number: item.number,
-            Email: item.email,
-        }));
+        const dataWithTime = filteredData.map(item => {
+            const indiaDate = utcToZonedTime(item.createdAt, indiaTimeZone);
+            return {
+                ID: item.uniqueid,
+                Date: format(indiaDate, 'dd-MM-yyyy'),
+                Time: formatToTimeZone(indiaDate, 'hh:mm:ss a', { timeZone: indiaTimeZone }),
+                Name: item.name,
+                number: item.number,
+                Email: item.email,
+            };
+        });
         console.log(filteredData);
 
         // Create a new worksheet
@@ -130,7 +137,7 @@ const transporter = nodemailer.createTransport({
         });
 
         console.log(`Excel file for today (${format(selectedDate, 'yyyy-MM-dd')}) sent via email.`);
-        res.json({message:"done"})
+        res.json({ message: 'done' });
     } catch (error) {
         console.error('Error sending email:', error);
     }
