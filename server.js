@@ -155,11 +155,11 @@ app.post('/',async(req,res)=>{
     // console.log(d,"h",req.body.id)
     console.log(d,"h",req.body)
     var data =await UserData.create(req.body); 
-    if(data){
+    // if(data){
         // res.status(200).json({status:200})
-        res.redirect('https://morsypropertydealer.com/');
+        // res.redirect('https://morsypropertydealer.com/');
 
-    }
+    // }
 })
 
 
