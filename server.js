@@ -1,6 +1,6 @@
 const express = require('express');
 const app= express();
-const port= 2000
+const port= 7000
 const morgan = require('morgan')
 const cors= require('cors')
 const mongoose = require('mongoose');
@@ -16,6 +16,7 @@ const cron = require('node-cron');
 app.use(cors({
     origin: 'https://morsypropertydealer.com/'
 }));
+
   app.use(function (req, res, next) {
     //Enabling CORS
     res.header("Access-Control-Allow-Origin", "*");
@@ -64,9 +65,6 @@ app.get('/',(req,res)=>{
   res.send("done")
 })
 
-const { format } = require('date-fns');
-const { utcToZonedTime, formatToTimeZone } = require('date-fns-tz');
-const indiaTimeZone = 'Asia/Kolkata'; // IST - Indian Standard Time
 
 
 const transporter = nodemailer.createTransport({
@@ -78,73 +76,77 @@ const transporter = nodemailer.createTransport({
   });
   
   // cron.schedule('25 14 * * *', async () => {
-   app.get('/dds', async (req, res) => {
-    const selectedDate = new Date(); // Get today's date
 
-    try {
-        const filteredData = await UserData.find({
-            createdAt: {
-                $gte: selectedDate.setHours(0, 0, 0, 0),
-                $lt: selectedDate.setHours(23, 59, 59, 999)
-            }
-        }).select('name number email createdAt uniqueid').lean();
-        console.log(filteredData);
-
-        if (filteredData.length === 0) {
-            console.log('No data found for today.');
-            return;
-        }
-
-        // Modify the data to include a separate "createdAt" and "createdTime" field in 12-hour format with AM/PM
-        const dataWithTime = filteredData.map(item => {
-            const indiaDate = utcToZonedTime(item.createdAt, indiaTimeZone);
-            return {
-                ID: item.uniqueid,
-                Date: format(indiaDate, 'dd-MM-yyyy'),
-                Time: formatToTimeZone(indiaDate, 'hh:mm:ss a', { timeZone: indiaTimeZone }),
-                Name: item.name,
-                number: item.number,
-                Email: item.email,
-            };
-        });
-        console.log(filteredData);
-
-        // Create a new worksheet
-        const ws = XLSX.utils.json_to_sheet(dataWithTime);
-
-        // Create a new workbook and add the worksheet
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-
-        // Write the workbook to a buffer
-        const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
-
-        // Define the output file name with today's date
-        const fileName = `data_${format(selectedDate, 'yyyy-MM-dd')}.xlsx`;
-
-        // Send email with the Excel file
-        await transporter.sendMail({
-            from: 'morsypropertydealer@gmail.com',
-            to: 'morsypropertydealer@gmail.com',
-            subject: 'Excel File Attachment for Today',
-            text: `Please find the attached Excel file for today (${format(selectedDate, 'dd-MM-yyyy')}).`,
-            attachments: [
-                {
-                    filename: fileName,
-                    content: buffer
+    const { format } = require('date-fns');
+    const { utcToZonedTime, format: formatToTimeZone } = require('date-fns-tz'); // Import 'format' from 'date-fns-tz'
+    
+    const indiaTimeZone = 'Asia/Kolkata'; // IST - Indian Standard Time
+    
+    app.get('/dds', async (req, res) => {
+        const selectedDate = new Date(); // Get today's date
+    
+        try {
+            const filteredData = await UserData.find({
+                createdAt: {
+                    $gte: selectedDate.setHours(0, 0, 0, 0),
+                    $lt: selectedDate.setHours(23, 59, 59, 999)
                 }
-            ]
-        });
-
-        console.log(`Excel file for today (${format(selectedDate, 'yyyy-MM-dd')}) sent via email.`);
-        res.json({ message: 'done' });
-    } catch (error) {
-        console.error('Error sending email:', error);
-    }
-});
-
-
-
+            }).select('name number email createdAt uniqueid').lean();
+            console.log(filteredData);
+    
+            if (filteredData.length === 0) {
+                console.log('No data found for today.');
+                return;
+            }
+    
+            // Modify the data to include a separate "createdAt" and "createdTime" field in 12-hour format with AM/PM
+            const dataWithTime = filteredData.map(item => {
+                const indiaDate = utcToZonedTime(item.createdAt, indiaTimeZone);
+                return {
+                    ID: item.uniqueid,
+                    Date: format(indiaDate, 'dd-MM-yyyy'),
+                    Time: formatToTimeZone(indiaDate, 'hh:mm:ss a', { timeZone: indiaTimeZone }),
+                    Name: item.name,
+                    number: item.number,
+                    Email: item.email,
+                };
+            });
+            console.log(filteredData);
+    
+            // Create a new worksheet
+            const ws = XLSX.utils.json_to_sheet(dataWithTime);
+    
+            // Create a new workbook and add the worksheet
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+    
+            // Write the workbook to a buffer
+            const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+    
+            // Define the output file name with today's date
+            const fileName = `data_${format(selectedDate, 'yyyy-MM-dd')}.xlsx`;
+    
+            // Send email with the Excel file
+            await transporter.sendMail({
+                from: 'morsypropertydealer@gmail.com',
+                to: 'morsypropertydealer@gmail.com',
+                subject: 'Excel File Attachment for Today',
+                text: `Please find the attached Excel file for today (${format(selectedDate, 'dd-MM-yyyy')}).`,
+                attachments: [
+                    {
+                        filename: fileName,
+                        content: buffer
+                    }
+                ]
+            });
+    
+            console.log(`Excel file for today (${format(selectedDate, 'yyyy-MM-dd')}) sent via email.`);
+            res.json({ message: 'done' });
+        } catch (error) {
+            console.error('Error sending email:', error);
+        }
+    });
+    
 
 app.post('/',async(req,res)=>{
     // console.log(req.body)
