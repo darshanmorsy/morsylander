@@ -92,7 +92,7 @@ const transporter = nodemailer.createTransport({
                     $gte: selectedDate.setHours(0, 0, 0, 0),
                     $lt: selectedDate.setHours(23, 59, 59, 999)
                 }
-            }).select('name number email createdAt uniqueid').lean();
+            }).select('name number email message createdAt uniqueid').lean();
             console.log(filteredData);
     
             if (filteredData.length === 0) {
@@ -110,6 +110,7 @@ const transporter = nodemailer.createTransport({
                     Name: item.name,
                     number: item.number,
                     Email: item.email,
+                    Message : item.message,
                 };
             });
             console.log(filteredData);
