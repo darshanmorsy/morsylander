@@ -27,7 +27,8 @@ app.use(cors({
 app.use(morgan('dev'))
 app.use(express.urlencoded({ extended: true }))
 // Replace <YourMongoDBURI> with your MongoDB connection URI
-const uri ='mongodb+srv://morsypropertydealer:morsypropertydealer@cluster0.p6ub5kn.mongodb.net/lander';
+// const uri ='mongodb+srv://morsypropertydealer:morsypropertydealer@cluster0.p6ub5kn.mongodb.net/lander';
+const uri ='mongodb+srv://morsypropertydealer:propertymorsy@cluster0.p6ub5kn.mongodb.net/lander';
 // const uri ='mongodb://127.0.0.1/lander';
 
 mongoose.connect(uri, {
