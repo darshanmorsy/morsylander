@@ -51,6 +51,7 @@ const userDataSchema = new mongoose.Schema({
     name: String,
   number: String,
   email: String,
+    message:String,
 
 },{
   timestamps: true,
