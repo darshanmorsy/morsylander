@@ -52,7 +52,7 @@ const userDataSchema = new mongoose.Schema({
     name: String,
   number: String,
   email: String,
-    message:String,
+    requirement:String,
 
 },{
   timestamps: true,
@@ -93,7 +93,7 @@ const transporter = nodemailer.createTransport({
                     $gte: selectedDate.setHours(0, 0, 0, 0),
                     $lt: selectedDate.setHours(23, 59, 59, 999)
                 }
-            }).select('name number email message createdAt uniqueid').lean();
+            }).select('name number email requirement createdAt uniqueid').lean();
             console.log(filteredData);
     
             if (filteredData.length === 0) {
@@ -111,7 +111,7 @@ const transporter = nodemailer.createTransport({
                     Name: item.name,
                     number: item.number,
                     Email: item.email,
-                    Message : item.message,
+                    Requirement : item.requirement,
                 };
             });
             console.log(filteredData);
@@ -157,6 +157,7 @@ app.post('/',async(req,res)=>{
     req.body.uniqueid=d.length+1
     // console.log(d,"h",req.body.id)
     console.log(d,"h",req.body)
+    req.body.requirement=req.body.radio
     var data =await UserData.create(req.body); 
     // if(data){
         // res.status(200).json({status:200})
