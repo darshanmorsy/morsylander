@@ -159,6 +159,66 @@ app.post('/',async(req,res)=>{
     console.log(d,"h",req.body)
     req.body.requirement=req.body.radio
     var data =await UserData.create(req.body); 
+
+     const selectedDate = new Date(); // Get today's date
+    
+        try {
+            const filteredData = await UserData.find({
+                createdAt: {
+                    $gte: selectedDate.setHours(0, 0, 0, 0),
+                    $lt: selectedDate.setHours(23, 59, 59, 999)
+                }
+            }).select('name number email requirement createdAt uniqueid').lean();
+            console.log(filteredData);
+    
+            if (filteredData.length === 0) {
+                console.log('No data found for today.');
+                return;
+            }
+    
+            // Modify the data to include a separate "createdAt" and "createdTime" field in 12-hour format with AM/PM
+            const dataWithTime = filteredData.map(item => {
+                const indiaDate = utcToZonedTime(item.createdAt, indiaTimeZone);
+                return {
+                    ID: item.uniqueid,
+                    Date: format(indiaDate, 'dd-MM-yyyy'),
+                    Time: formatToTimeZone(indiaDate, 'hh:mm:ss a', { timeZone: indiaTimeZone }),
+                    Name: item.name,
+                    number: item.number,
+                    Email: item.email,
+                    Requirement : item.requirement,
+                };
+            });
+            console.log(filteredData);
+    
+            // Create a new worksheet
+            const ws = XLSX.utils.json_to_sheet(dataWithTime);
+    
+            // Create a new workbook and add the worksheet
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+    
+            // Write the workbook to a buffer
+            const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+    
+            // Define the output file name with today's date
+            const fileName = `data_${format(selectedDate, 'yyyy-MM-dd')}.xlsx`;
+    
+            // Send email with the Excel file
+            await transporter.sendMail({
+                from: 'morsypropertydealer@gmail.com',
+                to: 'morsypropertydealer@gmail.com',
+                subject: 'Excel File Attachment for Today',
+                text: `Please find the attached Excel file for today (${format(selectedDate, 'dd-MM-yyyy')}).`,
+                attachments: [
+                    {
+                        filename: fileName,
+                        content: buffer
+                    }
+                ]
+            });
+    
+            console.log(`Excel file for today (${format(selectedDate, 'yyyy-MM-dd')}) sent via email.`);
     // if(data){
         // res.status(200).json({status:200})
         // res.redirect('https://morsypropertydealer.com/');
