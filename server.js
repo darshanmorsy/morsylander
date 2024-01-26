@@ -162,7 +162,6 @@ app.post('/',async(req,res)=>{
 
      const selectedDate = new Date(); // Get today's date
     
-        try {
             const filteredData = await UserData.find({
                 createdAt: {
                     $gte: selectedDate.setHours(0, 0, 0, 0),
